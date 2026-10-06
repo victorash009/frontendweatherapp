@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stratus Aether Weather — Atmospheric Cockpit</title>
+  <meta name="description"
+    content="Stratus Weather is a next-generation atmospheric cockpit combining panoramic generative sky telemetry with frosted glassmorphism, Doppler radar, and precision forecasting." />
+
+  <!-- Google Fonts: Plus Jakarta Sans & Space Grotesk -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+
+  <!-- Google Material Symbols Outlined -->
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+  <!-- Bootstrap 5.3.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+
+  <!-- Custom Aether Atmospheric Glassmorphism CSS -->
+  <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+
+  <!-- ===================================================================
+       SIDEBAR NAVIGATION (DESKTOP & OFF-CANVAS)
+       =================================================================== -->
+  <aside class="sidebar-wrapper d-none d-lg-flex" id="desktopSidebar">
+    <div>
+      <!-- Brand Header -->
+      <div class="sidebar-logo">
+        <div class="logo-icon-box">
+          <span class="material-symbols-outlined text-[24px]">air</span>
+        </div>
+        <div class="d-flex flex-column">
+          <span class="font-headline fw-bold text-white fs-5" style="letter-spacing: -0.02em;">Stratus</span>
+          <span class="font-data text-dim text-uppercase" style="font-size: 10px; letter-spacing: 0.12em;">Aether
+            Weather</span>
+        </div>
+      </div>
+
+      <!-- Observatory Links -->
+      <div class="mb-4">
+        <div class="px-2 mb-2 font-data text-dim text-uppercase" style="font-size: 11px; letter-spacing: 0.08em;">
+          Observatory</div>
+        <nav class="d-flex flex-column">
+          <a href="#" class="nav-link-custom active" id="navLinkOverview">
+            <div class="d-flex align-items-center gap-2">
+              <span class="material-symbols-outlined" style="font-size: 20px;">grid_view</span>
+              <span>Overview</span>
+            </div>
+            <span class="font-data text-dim" style="font-size: 12px;">72°</span>
+          </a>
+
+          <a href="#radarSection" class="nav-link-custom" id="navLinkRadar">
+            <div class="d-flex align-items-center gap-2">
+              <span class="material-symbols-outlined" style="font-size: 20px;">radar</span>
+              <span>Atmospheric Radar</span>
+            </div>
+            <span class="badge rounded-pill bg-warning p-1" style="width: 8px; height: 8px;"></span>
+          </a>
+
+          <a href="#savedHubsSection" class="nav-link-custom" id="navLinkSavedHubs">
+            <div class="d-flex align-items-center gap-2">
+              <span class="material-symbols-outlined" style="font-size: 20px;">bookmarks</span>
+              <span>Saved Hubs</span>
+            </div>
+            <span class="badge rounded-pill bg-dark font-data text-subtle" style="font-size: 11px;">4</span>
+          </a>
+
+          <a href="#" class="nav-link-custom" id="navLinkTelemetry" data-bs-toggle="modal"
+            data-bs-target="#globalModelModal">
+            <div class="d-flex align-items-center gap-2">
+              <span class="material-symbols-outlined" style="font-size: 20px;">analytics</span>
+              <span>Deep Telemetry</span>
+            </div>
+          </a>
+
+          <a href="#" class="nav-link-custom" id="navLinkStorms"
+            onclick="showToast('Severe Trajectory: No active cyclonic warnings in current sector', 'info')">
+            <div class="d-flex align-items-center gap-2">
+              <span class="material-symbols-outlined" style="font-size: 20px;">cyclone</span>
+              <span>Severe Trajectory</span>
+            </div>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Quick Pins -->
+      <div>
+        <div class="px-2 mb-2 font-data text-dim text-uppercase" style="font-size: 11px; letter-spacing: 0.08em;">Quick
+          Pins</div>
+        <div class="d-flex flex-column gap-2">
+          <button type="button"
+            class="btn text-start p-2 rounded-3 border-0 d-flex justify-content-between align-items-center glass-sub-panel"
+            onclick="renderCurrentWeather('reykjavik'); showToast('Switched to Reykjavík');" id="quickPinReykjavik">
+            <div>
+              <div class="fw-semibold text-white" style="font-size: 13px;">Reykjavík</div>
+              <div class="text-subtle" style="font-size: 11px;">Light Auroral Snow</div>
+            </div>
+            <span class="font-data fw-bold text-cyan" style="font-size: 14px;">-2°</span>
+          </button>
+
+          <button type="button"
+            class="btn text-start p-2 rounded-3 border-0 d-flex justify-content-between align-items-center glass-sub-panel"
+            onclick="renderCurrentWeather('tokyo'); showToast('Switched to Tokyo');" id="quickPinTokyo">
+            <div>
+              <div class="fw-semibold text-white" style="font-size: 13px;">Tokyo</div>
+              <div class="text-subtle" style="font-size: 11px;">Clear Night Sky</div>
+            </div>
+            <span class="font-data fw-bold text-cyan" style="font-size: 14px;">19°</span>
+          </button>
+
+          <button type="button"
+            class="btn text-start p-2 rounded-3 border-0 d-flex justify-content-between align-items-center glass-sub-panel"
+            onclick="renderCurrentWeather('abuja'); showToast('Switched to Abuja');" id="quickPinAbuja">
+            <div>
+              <div class="fw-semibold text-white" style="font-size: 13px;">Abuja</div>
+              <div class="text-subtle" style="font-size: 11px;">Nigeria</div>
+            </div>
+            <span class="font-data fw-bold text-amber" style="font-size: 14px;">32°</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pro Uplink Profile Card -->
+    <div class="p-3 rounded-4 glass-sub-panel d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center gap-2">
+        <div class="rounded-circle bg-info d-flex align-items-center justify-content-center"
+          style="width: 34px; height: 34px;">
+          <span class="material-symbols-outlined text-dark" style="font-size: 18px;">satellite_alt</span>
+        </div>
+        <div>
+          <div class="text-white fw-semibold" style="font-size: 13px;">Aether Pro</div>
+          <div class="font-data text-dim" style="font-size: 10px;">Satellite Uplink</div>
+        </div>
+      </div>
+      <button class="btn btn-link p-0 text-subtle text-decoration-none" title="Telemetry Settings"
+        onclick="showToast('Uplink synchronized with NOAA Geostationary constellation', 'info')" id="btnUplinkSettings">
+        <span class="material-symbols-outlined" style="font-size: 20px;">tune</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Mobile Offcanvas Sidebar -->
+  <div class="offcanvas offcanvas-start bg-dark text-white border-end border-secondary-subtle" tabindex="-1"
+    id="mobileSidebarMenu" aria-labelledby="mobileSidebarMenuLabel"
+    style="background-color: var(--surface) !important;">
+    <div class="offcanvas-header border-bottom border-white-50">
+      <div class="d-flex align-items-center gap-2">
+        <div class="logo-icon-box">
+          <span class="material-symbols-outlined text-[22px]">air</span>
+        </div>
+        <h5 class="offcanvas-title font-headline fw-bold" id="mobileSidebarMenuLabel">Stratus Weather</h5>
+      </div>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-4 d-flex flex-column justify-content-between">
+      <div>
+        <div class="font-data text-dim text-uppercase mb-2" style="font-size: 11px;">Observatory Hubs</div>
+        <div class="list-group list-group-flush mb-4">
+          <button
+            class="list-group-item list-group-item-action bg-transparent text-white border-0 py-2 d-flex align-items-center gap-2"
+            onclick="renderCurrentWeather('tuscany')" data-bs-dismiss="offcanvas">
+            <span class="material-symbols-outlined text-cyan">location_on</span> Tuscany, Italy
+          </button>
+          <button
+            class="list-group-item list-group-item-action bg-transparent text-white border-0 py-2 d-flex align-items-center gap-2"
+            onclick="renderCurrentWeather('tokyo')" data-bs-dismiss="offcanvas">
+            <span class="material-symbols-outlined text-amber">nightlight</span> Tokyo, Japan
+          </button>
+          <button
+            class="list-group-item list-group-item-action bg-transparent text-white border-0 py-2 d-flex align-items-center gap-2"
+            onclick="renderCurrentWeather('newyork')" data-bs-dismiss="offcanvas">
+            <span class="material-symbols-outlined text-cyan">rainy</span> New York, USA
+          </button>
+          <button
+            class="list-group-item list-group-item-action bg-transparent text-white border-0 py-2 d-flex align-items-center gap-2"
+            onclick="renderCurrentWeather('zurich')" data-bs-dismiss="offcanvas">
+            <span class="material-symbols-outlined text-amber">wb_sunny</span> Zurich, Switzerland
+          </button>
+          <button
+            class="list-group-item list-group-item-action bg-transparent text-white border-0 py-2 d-flex align-items-center gap-2"
+            onclick="renderCurrentWeather('abuja')" data-bs-dismiss="offcanvas" id="mobileNavAbuja">
+            <span class="material-symbols-outlined text-amber">wb_sunny</span> Abuja, Nigeria
+          </button>
+        </div>
+      </div>
+      <div class="d-grid gap-2">
+        <a href="./mobile.html" class="btn btn-outline-info rounded-pill py-2">
+          <span class="material-symbols-outlined align-middle me-1">smartphone</span> Switch to Mobile Layout
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       FIXED TOP NAVIGATION HEADER
+       =================================================================== -->
+  <header class="top-header" id="topHeader">
+    <div class="d-flex align-items-center gap-3 flex-grow-1">
+      <!-- Offcanvas Trigger for Small Screens -->
+      <button class="btn btn-outline-secondary d-lg-none p-1 rounded-circle" type="button" data-bs-toggle="offcanvas"
+        data-bs-target="#mobileSidebarMenu" aria-controls="mobileSidebarMenu" id="btnToggleSidebar">
+        <span class="material-symbols-outlined text-white" style="font-size: 20px;">menu</span>
+      </button>
+
+      <!-- Search Field with Cmd+K Badge -->
+      <div class="search-wrapper">
+        <span class="material-symbols-outlined search-icon">search</span>
+        <input type="text" class="search-input" id="globalCitySearch"
+          placeholder="Search city, coordinates, or station..." />
+        <button type="button" class="search-kbd border-0" id="searchBtn"
+          style="font-size: 12px; cursor: pointer;">Search</button>
+      </div>
+
+      <!-- Quick Station Pills (Desktop) -->
+      <div class="d-none d-xl-flex align-items-center gap-2">
+        <button type="button" class="btn btn-sm glass-pill px-3 py-1 font-data" style="font-size: 11px;"
+          onclick="renderCurrentWeather('zurich')" id="pillZurich">Zurich</button>
+        <button type="button" class="btn btn-sm glass-pill px-3 py-1 font-data" style="font-size: 11px;"
+          onclick="renderCurrentWeather('seattle')" id="pillSeattle">Seattle</button>
+        <button type="button" class="btn btn-sm glass-pill px-3 py-1 font-data" style="font-size: 11px;"
+          onclick="renderCurrentWeather('kyoto')" id="pillKyoto">Kyoto</button>
+        <button type="button" class="btn btn-sm glass-pill px-3 py-1 font-data" style="font-size: 11px;"
+          onclick="renderCurrentWeather('abuja')" id="pillAbuja">Abuja</button>
+      </div>
+    </div>
+
+    <!-- Header Actions Right -->
+    <div class="d-flex align-items-center gap-3">
+      <!-- Live UTC Clock -->
+      <div class="d-none d-md-flex align-items-center gap-2 px-3 py-1 rounded-pill glass-sub-panel font-data"
+        style="font-size: 12px;">
+        <span class="material-symbols-outlined text-amber" style="font-size: 16px;">schedule</span>
+        <span id="headerUtcClock" class="text-white">--:--:-- UTC</span>
+      </div>
+
+      <!-- Temperature Toggle Button Group -->
+      <div class="btn-group p-1 rounded-pill glass-sub-panel" role="group" aria-label="Unit Switcher"
+        id="tempUnitGroup">
+        <button type="button" class="btn btn-sm glass-pill active px-3 py-1 font-data" id="btnUnitCelsius"
+          onclick="setTempUnit(true)" style="font-size: 12px;">°C</button>
+        <button type="button" class="btn btn-sm glass-pill px-3 py-1 font-data" id="btnUnitFahrenheit"
+          onclick="setTempUnit(false)" style="font-size: 12px;">°F</button>
+      </div>
+
+      <!-- Link to Mobile App View -->
+      <a href="./mobile.html"
+        class="btn btn-sm btn-outline-info rounded-pill px-3 py-1 d-none d-sm-flex align-items-center gap-1 font-data"
+        style="font-size: 11px;" title="Preview Dedicated Mobile Tab UI">
+        <span class="material-symbols-outlined" style="font-size: 16px;">smartphone</span>
+        <span>Mobile App</span>
+      </a>
+
+      <!-- Notifications & Profile Icons -->
+      <button class="btn btn-sm p-2 rounded-circle glass-sub-panel text-white"
+        onclick="showToast('Atmospheric alerts: Clear air stability through next 12 hours', 'info')" title="Alerts"
+        id="btnNotifications">
+        <span class="material-symbols-outlined" style="font-size: 18px;">notifications</span>
+      </button>
+
+      <button class="btn btn-sm p-2 rounded-circle glass-sub-panel text-white d-none d-md-inline-block"
+        onclick="showToast('Doppler radar layers synchronized', 'info')" title="Layers" id="btnLayers">
+        <span class="material-symbols-outlined" style="font-size: 18px;">layers</span>
+      </button>
+
+      <div class="rounded-circle bg-info d-flex align-items-center justify-content-center text-dark"
+        style="width: 32px; height: 32px;" title="User Profile">
+        <span class="material-symbols-outlined" style="font-size: 18px;">person</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================================================================
+       MAIN DASHBOARD COCKPIT CONTENT
+       =================================================================== -->
+  <main class="main-content-layout">
+
+    <!-- DYNAMIC ATMOSPHERIC HERO LANDSCAPE SECTION -->
+    <section class="hero-atmospheric-card mb-4" id="heroAtmosphericCard"
+      style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAiBJooSS8DULkodR1PrI5P-IG1wwWXdsYbAgPKlJ5uNyvlJmTAe009BOoXP5ght9BiSN6HbwKGiWPirTxLkQckRE8fQozGgX3E8N3CC0m4aIOKgtN1xW3CTYFgq7H-g5FfTyGtcLrxHk85P6UvE1hLuNA_eFqbyiA6TCBMbZKqAKdHWDm1WfuJFBbHQ-QmLJEic6WwSAD75_OluCmNYrATFKjRK8rDHz-oAE0rQXZJ3N-AnIIaxCcXBA');">
+      <!-- Deep Atmospheric Ambient & Gradient Filters -->
+      <div class="hero-backdrop-scrim"></div>
+      <div class="hero-glow-1"></div>
+      <div class="hero-glow-2"></div>
+
+      <!-- Foreground Floating UI Elements -->
+      <div class="hero-content">
+        <!-- Top Status Ribbon -->
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+          <!-- Location Badge with Coordinates -->
+          <div class="d-flex align-items-center gap-2 px-3 py-1.5 rounded-pill glass-pill">
+            <span class="material-symbols-outlined text-amber" style="font-size: 18px;">location_on</span>
+            <span class="font-headline fw-semibold text-white" id="heroLocationName" style="font-size: 15px;">Tuscany,
+              Italy</span>
+            <span class="rounded-circle bg-secondary" style="width: 5px; height: 5px;"></span>
+            <span class="font-data text-subtle" id="heroCoordinates" style="font-size: 12px;">43.7711° N, 11.2486°
+              E</span>
+          </div>
+
+          <!-- Telemetry Live Ping & Refresh Action -->
+          <div class="d-flex align-items-center gap-2">
+            <div class="d-none d-sm-flex align-items-center gap-2 px-3 py-1.5 rounded-pill glass-pill font-data"
+              style="font-size: 12px;">
+              <span class="spinner-grow spinner-grow-sm text-info" role="status"
+                style="width: 8px; height: 8px;"></span>
+              <span class="text-cyan">Live Satellite Telemetry</span>
+            </div>
+            <button class="btn btn-sm glass-pill p-2 rounded-circle" type="button"
+              onclick="searchCity(currentCityId); showToast('Satellite data telemetry refreshed!');"
+              title="Refresh Live Data" id="btnRefreshHero">
+              <span class="material-symbols-outlined" style="font-size: 18px;">refresh</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Dramatic Display Scale & Atmospheric Status -->
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mt-4">
+          <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <span class="material-symbols-outlined text-amber" id="heroConditionIcon"
+                style="font-size: 24px; font-variation-settings: 'FILL' 1;">wb_sunny</span>
+              <span class="font-headline fw-bold text-amber fs-5" id="heroStatusText">Mostly Sunny & Mild</span>
+              <span class="text-subtle font-data ms-2" style="font-size: 12px;">Updated 2 mins ago</span>
+            </div>
+
+            <!-- Big Degree Typography with High / Low Details -->
+            <div class="d-flex align-items-baseline gap-3">
+              <div class="d-flex align-items-start">
+                <span class="hero-temp-number text-white" id="heroMainTemp">23</span>
+                <span class="hero-temp-unit" id="heroTempUnit">°C</span>
+              </div>
+
+              <div class="d-flex flex-column font-data text-subtle pb-2" style="font-size: 13px;">
+                <div class="d-flex align-items-center gap-1">
+                  <span class="material-symbols-outlined text-danger" style="font-size: 16px;">north</span>
+                  <span>H: <strong class="text-white" id="heroHighTemp">26°</strong></span>
+                </div>
+                <div class="d-flex align-items-center gap-1">
+                  <span class="material-symbols-outlined text-info" style="font-size: 16px;">south</span>
+                  <span>L: <strong class="text-white" id="heroLowTemp">15°</strong></span>
+                </div>
+                <span class="text-dim mt-1" id="heroFeelsLike" style="font-size: 11.5px;">Feels like 24°C</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6-Metric Telemetry Glass Strip -->
+          <div class="telemetry-glass-strip">
+            <div class="row g-2 justify-content-center">
+              <div class="col-4 col-sm-2 telemetry-item">
+                <span class="material-symbols-outlined text-cyan mb-1" style="font-size: 18px;">rainy</span>
+                <span class="font-data text-dim" style="font-size: 10.5px;">Precip</span>
+                <span class="font-data fw-bold text-white" id="telPrecip" style="font-size: 14px;">12%</span>
+              </div>
+              <div class="col-4 col-sm-2 telemetry-item">
+                <span class="material-symbols-outlined text-cyan mb-1" style="font-size: 18px;">humidity_mid</span>
+                <span class="font-data text-dim" style="font-size: 10.5px;">Humidity</span>
+                <span class="font-data fw-bold text-white" id="telHumidity" style="font-size: 14px;">48%</span>
+              </div>
+              <div class="col-4 col-sm-2 telemetry-item">
+                <span class="material-symbols-outlined text-amber mb-1" style="font-size: 18px;">air</span>
+                <span class="font-data text-dim" style="font-size: 10.5px;">Wind</span>
+                <span class="font-data fw-bold text-white" id="telWind" style="font-size: 14px;">14 km/h</span>
+              </div>
+              <div class="col-4 col-sm-2 telemetry-item">
+                <span class="material-symbols-outlined text-dim mb-1" style="font-size: 18px;">compress</span>
+                <span class="font-data text-dim" style="font-size: 10.5px;">Pressure</span>
+                <span class="font-data fw-bold text-white" id="telPressure" style="font-size: 14px;">1,014 hPa</span>
+              </div>
+              <div class="col-4 col-sm-2 telemetry-item">
+                <span class="material-symbols-outlined text-amber mb-1" style="font-size: 18px;">light_mode</span>
+                <span class="font-data text-dim" style="font-size: 10.5px;">UV Index</span>
+                <span class="font-data fw-bold text-amber" id="telUv" style="font-size: 14px;">4 <span class="text-dim"
+                    style="font-size: 11px;">Mod</span></span>
+              </div>
+              <div class="col-4 col-sm-2 telemetry-item">
+                <span class="material-symbols-outlined text-cyan mb-1" style="font-size: 18px;">visibility</span>
+                <span class="font-data text-dim" style="font-size: 10.5px;">Visibility</span>
+                <span class="font-data fw-bold text-white" id="telVisibility" style="font-size: 14px;">10 km</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         12-COLUMN RESPONSIVE DASHBOARD BENTO GRID
+         =================================================================== -->
+    <div class="row g-4">
+
+      <!-- LEFT COLUMN (8 COLS): HOURLY, BENTO TELEMETRY, & DOPPLER RADAR -->
+      <div class="col-lg-8 d-flex flex-column gap-4">
+
+        <!-- 1. HOURLY CHRONOLOGY & THERMAL SPLINE CARD -->
+        <div class="p-4 glass-panel">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center gap-2">
+              <span class="material-symbols-outlined text-cyan" style="font-size: 22px;">schedule</span>
+              <h2 class="font-headline fw-semibold text-white fs-5 m-0">Hourly Outlook & Thermal Curve</h2>
+            </div>
+            <div class="d-flex align-items-center gap-2 font-data text-subtle" style="font-size: 11px;">
+              <span class="rounded-circle bg-info" style="width: 8px; height: 8px;"></span>
+              <span>Precipitation Probability</span>
+            </div>
+          </div>
+
+          <!-- 24H Horizontal Scroll Carousel -->
+          <div class="hourly-scroll-container" id="hourlyCarouselContainer">
+            <!-- Dynamically populated by JS -->
+          </div>
+
+          <!-- Dynamic SVG Thermal Curve Spline -->
+          <div class="thermal-svg-wrapper">
+            <svg class="w-100 h-100 overflow-visible" viewBox="0 0 700 80" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="thermalGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.38"></stop>
+                  <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.0"></stop>
+                </linearGradient>
+              </defs>
+              <!-- Filled Area Under Curve -->
+              <path d="M 0,40 Q 100,20 200,10 T 400,35 T 550,60 T 700,68 L 700,80 L 0,80 Z" fill="url(#thermalGrad)">
+              </path>
+              <!-- Main Spline Stroke -->
+              <path class="thermal-spline" d="M 0,40 Q 100,20 200,10 T 400,35 T 550,60 T 700,68" fill="none"
+                stroke="#38bdf8" stroke-width="3" stroke-linecap="round"></path>
+              <!-- Sparkline Indicator Nodes -->
+              <circle cx="0" cy="40" r="4" fill="#38bdf8"></circle>
+              <circle cx="100" cy="20" r="4" fill="#ffb95f"></circle>
+              <circle cx="200" cy="10" r="5" fill="#ffb95f" class="spinner-grow-sm"></circle>
+              <circle cx="300" cy="22" r="4" fill="#ffb95f"></circle>
+              <circle cx="400" cy="35" r="4" fill="#38bdf8"></circle>
+              <circle cx="500" cy="52" r="4" fill="#38bdf8"></circle>
+              <circle cx="600" cy="62" r="4" fill="#ce9bff"></circle>
+              <circle cx="700" cy="68" r="4" fill="#ce9bff"></circle>
+            </svg>
+            <div class="d-flex justify-content-between font-data text-dim px-1 mt-1" style="font-size: 11px;">
+              <span>23°C (Current Warmth)</span>
+              <span class="text-amber">25°C Peak Max</span>
+              <span class="text-cyan">17°C Night Drop</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. BENTO MICRO-TELEMETRY GRID (3 CARDS) -->
+        <div class="row g-3">
+          <!-- Card 1: Air Quality Index -->
+          <div class="col-sm-6 col-md-4">
+            <div class="p-3 rounded-4 glass-panel h-100 d-flex flex-column justify-content-between">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="d-flex align-items-center gap-1">
+                  <span class="material-symbols-outlined text-cyan" style="font-size: 18px;">eco</span>
+                  <span class="font-data text-dim text-uppercase" style="font-size: 11px; letter-spacing: 0.05em;">Air
+                    Quality</span>
+                </div>
+                <span class="badge rounded-pill text-bg-success px-2 py-1 font-data" id="bentoAqiStatus"
+                  style="font-size: 10px;">Optimal</span>
+              </div>
+
+              <div class="my-2">
+                <div class="d-flex align-items-baseline gap-2">
+                  <span class="font-headline fw-bold text-white fs-2" id="bentoAqiValue">32</span>
+                  <span class="font-data text-dim" style="font-size: 12px;">AQI (US)</span>
+                </div>
+                <!-- AQI Gauge Progress Bar -->
+                <div class="progress mt-2" style="height: 6px; background-color: rgba(255, 255, 255, 0.08);">
+                  <div class="progress-bar bg-info" role="progressbar" style="width: 28%;" aria-valuenow="28"
+                    aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+              </div>
+
+              <div class="row g-1 pt-2 font-data text-center border-top border-white-50 border-opacity-10"
+                style="font-size: 11px;">
+                <div class="col-4">
+                  <div class="text-dim" style="font-size: 10px;">PM2.5</div>
+                  <div class="text-white fw-semibold" id="bentoPm25">4.8 µg</div>
+                </div>
+                <div class="col-4">
+                  <div class="text-dim" style="font-size: 10px;">PM10</div>
+                  <div class="text-white fw-semibold" id="bentoPm10">12 µg</div>
+                </div>
+                <div class="col-4">
+                  <div class="text-dim" style="font-size: 10px;">O3</div>
+                  <div class="text-white fw-semibold" id="bentoO3">22 ppb</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Ephemeris & Solar Cycle Arc -->
+          <div class="col-sm-6 col-md-4">
+            <div class="p-3 rounded-4 glass-panel h-100 d-flex flex-column justify-content-between">
+              <div class="d-flex align-items-center justify-content-between mb-1">
+                <div class="d-flex align-items-center gap-1">
+                  <span class="material-symbols-outlined text-amber" style="font-size: 18px;">wb_twilight</span>
+                  <span class="font-data text-dim text-uppercase" style="font-size: 11px; letter-spacing: 0.05em;">Sun &
+                    Moon</span>
+                </div>
+                <span class="font-data text-subtle" id="bentoMoonPhase" style="font-size: 10px;">Waxing Crescent</span>
+              </div>
+
+              <!-- Solar Arc Visual SVG -->
+              <div class="d-flex justify-content-center my-1" style="height: 55px;">
+                <svg class="w-75 h-100 overflow-visible" viewBox="0 0 160 60">
+                  <path d="M 10,55 A 70,50 0 0,1 150,55" fill="none" stroke="#313540" stroke-width="2.5"
+                    stroke-dasharray="4,4"></path>
+                  <path d="M 10,55 A 70,50 0 0,1 115,22" fill="none" stroke="#ffb95f" stroke-width="3"></path>
+                  <circle cx="115" cy="22" r="5" fill="#ffb95f" class="spinner-grow-sm"></circle>
+                </svg>
+              </div>
+
+              <div class="d-flex justify-content-between font-data pt-2 border-top border-white-50 border-opacity-10"
+                style="font-size: 12px;">
+                <div>
+                  <span class="text-dim d-block" style="font-size: 10px;">Sunrise</span>
+                  <span class="text-white fw-semibold" id="bentoSunrise">06:14 AM</span>
+                </div>
+                <div class="text-end">
+                  <span class="text-dim d-block" style="font-size: 10px;">Sunset</span>
+                  <span class="text-white fw-semibold" id="bentoSunset">19:42 PM</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Atmospheric Barometer & Wind Bearing -->
+          <div class="col-sm-12 col-md-4">
+            <div class="p-3 rounded-4 glass-panel h-100 d-flex flex-column justify-content-between">
+              <div class="d-flex align-items-center justify-content-between mb-1">
+                <div class="d-flex align-items-center gap-1">
+                  <span class="material-symbols-outlined text-cyan" style="font-size: 18px;">speed</span>
+                  <span class="font-data text-dim text-uppercase"
+                    style="font-size: 11px; letter-spacing: 0.05em;">Barometer</span>
+                </div>
+                <span class="font-data text-cyan" id="bentoPressureStatus" style="font-size: 11px;">Steady</span>
+              </div>
+
+              <div class="my-1">
+                <div class="d-flex align-items-baseline gap-2">
+                  <span class="font-headline fw-bold text-white fs-2" id="bentoPressure">1,014</span>
+                  <span class="font-data text-dim" style="font-size: 12px;">hPa</span>
+                </div>
+
+                <!-- Compass Wind Mini Dial -->
+                <div class="d-flex align-items-center justify-content-between p-2 rounded-3 glass-sub-panel mt-2">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="rounded-circle bg-dark p-1 d-flex align-items-center justify-content-center text-amber"
+                      style="width: 26px; height: 26px;">
+                      <span class="material-symbols-outlined" style="font-size: 16px;">explore</span>
+                    </div>
+                    <div>
+                      <div class="text-dim font-data" style="font-size: 10px;">Wind Bearing</div>
+                      <div class="text-white font-data fw-semibold" id="bentoWindBearing" style="font-size: 11px;">285°
+                        WNW</div>
+                    </div>
+                  </div>
+                  <span class="font-data text-cyan fw-bold" id="bentoWindSpeedSmall" style="font-size: 12px;">14
+                    km/h</span>
+                </div>
+              </div>
+
+              <div class="font-data text-dim text-truncate mt-1" id="bentoPressureNote" style="font-size: 11px;">
+                Optimal high-pressure dome over Chianti
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. LIVE ATMOSPHERIC DOPPLER RADAR -->
+        <div class="p-4 glass-panel" id="radarSection">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+            <div class="d-flex align-items-center gap-2">
+              <span class="material-symbols-outlined text-amber" style="font-size: 22px;">radar</span>
+              <div>
+                <h3 class="font-headline fw-semibold text-white fs-5 m-0">Live Atmospheric Doppler</h3>
+                <p class="font-data text-dim m-0" style="font-size: 12px;" id="radarLocationDesc">Florence, Tuscany,
+                  Italy — Precipitation density scanner</p>
+              </div>
+            </div>
+
+            <!-- Doppler Layer Pills: Rain, Wind, Clouds -->
+            <div class="d-flex align-items-center gap-1">
+              <button type="button" class="btn btn-sm glass-pill radar-layer-btn active px-3 font-data"
+                data-layer="rain" onclick="setRadarLayer('rain')" style="font-size: 11px;">Rain</button>
+              <button type="button" class="btn btn-sm glass-pill radar-layer-btn px-3 font-data" data-layer="wind"
+                onclick="setRadarLayer('wind')" style="font-size: 11px;">Wind</button>
+              <button type="button" class="btn btn-sm glass-pill radar-layer-btn px-3 font-data" data-layer="clouds"
+                onclick="setRadarLayer('clouds')" style="font-size: 11px;">Clouds</button>
+            </div>
+          </div>
+
+          <!-- Radar Viewport -->
+          <div class="radar-display-box"
+            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBQHvfnM9YoeypQ_oB0rXQyagX0hzoJCcQK-T-LqbjctC1bnRL225ssUVItPRXhW5Ntj14e8P2QAVMpHvfNp0N9adAE1xGpC_Hoj5UbJzDiPlGK3d5bLvE8AuHCg9HABtQuAz9-ByvLVT6LepFy6iStKuetAJxTpRnZ61L_jPP49i7rcTL7A_eAr8ZOSlVz2b7b77hOq3VqXO9DSDwEbC_1Z11_06cdVTPIaGqkmgLxley68xTMCtZq9g');">
+            <!-- Simulated Radar Overlay & Sweep Canvas -->
+            <div class="radar-overlay-glass">
+              <div class="radar-sweep-center">
+                <div class="radar-ring-mid">
+                  <div class="radar-ring-inner">
+                    <div class="radar-center-dot"></div>
+                  </div>
+                </div>
+                <!-- Conic Sweep Beam -->
+                <div class="radar-sweep-ray"></div>
+                <!-- Simulated Atmospheric Radar Echoes -->
+                <div class="radar-blip-amber"></div>
+                <div class="radar-blip-cyan"></div>
+              </div>
+            </div>
+
+            <!-- Floating Radar Bottom Controls -->
+            <div
+              class="position-absolute bottom-0 start-0 m-3 d-flex align-items-center gap-2 px-3 py-1.5 rounded-pill glass-pill font-data"
+              style="font-size: 12px; cursor: pointer;" onclick="toggleRadarLoop()" title="Toggle Radar Animation">
+              <span class="material-symbols-outlined text-amber spinner-border-sm"
+                style="font-size: 16px;">autorenew</span>
+              <span id="radarLoopStatusText" class="text-white">Radar Loop: Active (90m)</span>
+            </div>
+
+            <div class="position-absolute bottom-0 end-0 m-3 d-flex align-items-center gap-1">
+              <button class="btn btn-sm glass-pill p-2 rounded-circle text-white" onclick="zoomRadar(0.15)"
+                title="Zoom In">
+                <span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+              </button>
+              <button class="btn btn-sm glass-pill p-2 rounded-circle text-white" onclick="zoomRadar(-0.15)"
+                title="Zoom Out">
+                <span class="material-symbols-outlined" style="font-size: 18px;">remove</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN (4 COLS): 7-DAY FORECAST MATRIX & SAVED GLOBAL HUBS -->
+      <div class="col-lg-4 d-flex flex-column gap-4">
+
+        <!-- 1. 7-DAY EXTENDED FORECAST CARD -->
+        <div class="p-4 glass-panel">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center gap-2">
+              <span class="material-symbols-outlined text-amber" style="font-size: 22px;">calendar_month</span>
+              <h2 class="font-headline fw-semibold text-white fs-5 m-0">7-Day Forecast</h2>
+            </div>
+            <span class="font-data text-dim text-uppercase" style="font-size: 11px;">Regional Range</span>
+          </div>
+
+          <!-- Forecast Daily Rows with Min-Max Thermometer Gradient Sliders -->
+          <div class="d-flex flex-column gap-1" id="forecastMatrixContainer">
+            <!-- Dynamically populated by JS -->
+          </div>
+
+          <!-- 14-Day Global Model Button -->
+          <button
+            class="btn w-100 mt-3 py-2.5 rounded-3 glass-sub-panel text-white font-data d-flex align-items-center justify-content-center gap-2"
+            data-bs-toggle="modal" data-bs-target="#globalModelModal" id="btnView14DayModel">
+            <span>View 14-Day Global Model</span>
+            <span class="material-symbols-outlined" style="font-size: 18px;">arrow_forward</span>
+          </button>
+        </div>
+
+        <!-- 2. GLOBAL HUBS WATCHLIST -->
+        <div class="p-4 glass-panel" id="savedHubsSection">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center gap-2">
+              <span class="material-symbols-outlined text-cyan" style="font-size: 22px;">public</span>
+              <h2 class="font-headline fw-semibold text-white fs-5 m-0">Global Hubs</h2>
+            </div>
+            <button class="btn btn-sm glass-pill p-1 rounded-circle" data-bs-toggle="modal"
+              data-bs-target="#addHubModal" title="Add New Hub" id="btnAddHubTrigger">
+              <span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+            </button>
+          </div>
+
+          <!-- Watchlist Items -->
+          <div class="d-flex flex-column gap-2" id="hubsListContainer">
+            <!-- Dynamically populated by JS -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ===================================================================
+       MOBILE BOTTOM NAVIGATION BAR
+       =================================================================== -->
+  <nav class="mobile-bottom-nav d-lg-none" id="mobileBottomNav">
+    <a href="#" class="mobile-nav-btn active"
+      onclick="searchCity(currentCityId); window.scrollTo({top:0, behavior:'smooth'});">
+      <span class="material-symbols-outlined" style="font-size: 22px;">partly_cloudy_day</span>
+      <span>Weather</span>
+    </a>
+    <a href="#radarSection" class="mobile-nav-btn">
+      <span class="material-symbols-outlined" style="font-size: 22px;">radar</span>
+      <span>Radar</span>
+    </a>
+    <a href="#savedHubsSection" class="mobile-nav-btn">
+      <span class="material-symbols-outlined" style="font-size: 22px;">bookmarks</span>
+      <span>Hubs</span>
+    </a>
+    <a href="./mobile.html" class="mobile-nav-btn">
+      <span class="material-symbols-outlined text-cyan" style="font-size: 22px;">smartphone</span>
+      <span>Mobile App</span>
+    </a>
+  </nav>
+
+  <!-- ===================================================================
+       MODAL 1: 14-DAY GLOBAL MODEL EXTENDED TELEMETRY
+       =================================================================== -->
+  <div class="modal fade" id="globalModelModal" tabindex="-1" aria-labelledby="globalModelModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content glass-panel p-4 text-white">
+        <div class="modal-header border-0 pb-0">
+          <div class="d-flex align-items-center gap-2">
+            <span class="material-symbols-outlined text-cyan fs-3">analytics</span>
+            <div>
+              <h5 class="modal-title font-headline fw-bold" id="globalModelModalLabel">14-Day Global Numerical Ensemble
+              </h5>
+              <p class="font-data text-dim m-0" style="font-size: 12px;">ECMWF & GFS High-Resolution Integrated
+                Atmospheric Model</p>
+            </div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body py-4">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="p-3 rounded-4 glass-sub-panel text-center">
+                <span class="material-symbols-outlined text-amber fs-2 mb-1">thermostat</span>
+                <div class="text-dim font-data" style="font-size: 11px;">Ensemble Mean High</div>
+                <div class="fs-4 fw-bold text-white font-data">24.2°C</div>
+                <div class="text-cyan font-data" style="font-size: 11px;">+1.4° vs 30y Normal</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-3 rounded-4 glass-sub-panel text-center">
+                <span class="material-symbols-outlined text-cyan fs-2 mb-1">water_drop</span>
+                <div class="text-dim font-data" style="font-size: 11px;">14-Day Accumulated Precip</div>
+                <div class="fs-4 fw-bold text-white font-data">18.6 mm</div>
+                <div class="text-amber font-data" style="font-size: 11px;">Scattered Front Thu-Fri</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-3 rounded-4 glass-sub-panel text-center">
+                <span class="material-symbols-outlined text-purple fs-2 mb-1">cyclone</span>
+                <div class="text-dim font-data" style="font-size: 11px;">Jet Stream Vorticity</div>
+                <div class="fs-4 fw-bold text-white font-data">Stable Ridge</div>
+                <div class="text-subtle font-data" style="font-size: 11px;">No extreme anomalies</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 p-3 rounded-4 glass-sub-panel">
+            <div class="fw-semibold mb-2 font-headline">Synoptic Meteorology Overview</div>
+            <p class="font-data text-subtle" style="font-size: 13px; line-height: 1.6;">
+              A semi-permanent Azores high extension maintains high barometric stability over Southern Europe. A
+              secondary trough will traverse the northern Alpine boundary around midweek, triggering localized
+              convective showers before returning to clear solar radiation dominance through next weekend.
+            </p>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-outline-info rounded-pill px-4 font-data" data-bs-dismiss="modal">Close
+            Telemetry</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       MODAL 2: ADD NEW SAVED HUB
+       =================================================================== -->
+  <div class="modal fade" id="addHubModal" tabindex="-1" aria-labelledby="addHubModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content glass-panel p-4 text-white">
+        <div class="modal-header border-0 pb-0">
+          <div class="d-flex align-items-center gap-2">
+            <span class="material-symbols-outlined text-amber fs-3">add_location_alt</span>
+            <h5 class="modal-title font-headline fw-bold" id="addHubModalLabel">Add Station to Hubs</h5>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body py-3">
+          <form id="newHubForm">
+            <label for="newHubInput" class="form-label font-data text-dim" style="font-size: 12px;">City or
+              Meteorological
+              Station</label>
+            <input type="text" class="form-control bg-dark text-white border-secondary rounded-3 p-2 font-data"
+              id="newHubInput" placeholder="e.g. Zurich, Kyoto, Seattle" />
+            <div class="form-text text-dim font-data mt-2" style="font-size: 11px;">
+              Quick select available presets: Zurich, Seattle, Kyoto, London, Reykjavík, San Francisco.
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-secondary rounded-pill font-data" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-info text-dark fw-semibold rounded-pill font-data px-4" onclick="
+            const val = document.getElementById('newHubInput').value;
+            if(val) {
+              searchCity(val);
+              bootstrap.Modal.getInstance(document.getElementById('addHubModal')).hide();
+            }
+          ">Add & Track</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       TOAST NOTIFICATION CONTAINER
+       =================================================================== -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer" style="z-index: 1080;"></div>
+
+  <!-- Bootstrap 5.3.3 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
+
+  <!-- Application Logic -->
+  <script src="./app.js"></script>
+</body>
+
+</html>
